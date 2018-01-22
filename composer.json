@@ -1,0 +1,30 @@
+{
+  "name": "alexantr/yii2-coordinates-input",
+  "description": "Map coordinates input widget for Yii 2",
+  "keywords": ["yii2", "widget", "google", "google-maps", "yandex", "yandex-maps", "maps", "map"],
+  "type": "yii2-extension",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alex Yashkin",
+      "email": "alex@yashkin.by"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/alexantr/yii2-coordinates-input/issues",
+    "source": "https://github.com/alexantr/yii2-coordinates-input"
+  },
+  "require": {
+    "yiisoft/yii2": "~2.0.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "alexantr\\coordinates\\": ""
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
+}
