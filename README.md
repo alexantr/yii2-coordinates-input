@@ -38,10 +38,10 @@ The following code in a view file would render an input with Google map:
 <?= alexantr\coordinates\CoordinatesInput::widget(['name' => 'attributeName']) ?>
 ```
 
-All default params:
+All widget params with default values:
 
 ```php
-<?= alexantr\ace\Ace::widget([
+<?= alexantr\coordinates\CoordinatesInput::widget([
     'name' => 'attributeName',
     'options' => ['class' => 'form-control coordinates-form-control'],
     'mapOptions' => ['class' => 'coordinates-map-container'],

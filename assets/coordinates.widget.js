@@ -3,46 +3,6 @@ if (typeof alexantr === "undefined" || !alexantr) {
 }
 
 alexantr.coordinatesWidget = {
-    _initValues: function (inputId, mapId) {
-        var inputValue = document.getElementById(inputId).value,
-            map = document.getElementById(mapId);
-        var mapLat = map.getAttribute('data-lat'),
-            mapLng = map.getAttribute('data-lng');
-        var lat = 0, lng = 0, zoom = 1;
-        if (mapLat && mapLng) {
-            lat = parseFloat(mapLat) || 0;
-            lng = parseFloat(mapLng) || 0;
-        }
-        var showMarker = false;
-        if (inputValue) {
-            var inputLatLng = inputValue.split(/\s*,\s*/);
-            if (inputLatLng.length === 2) {
-                lat = parseFloat(inputLatLng[0]) || 0;
-                lng = parseFloat(inputLatLng[1]) || 0;
-                showMarker = true;
-            }
-        }
-        if (lat !== 0 && lng !== 0) {
-            zoom = showMarker ? 14 : 10;
-        }
-        return {
-            lat: lat,
-            lng: lng,
-            zoom: zoom,
-            showMarker: showMarker
-        };
-    },
-    _changeInputValue: function (input, lat, lng) {
-        input.value = lat.toFixed(6) + ', ' + lng.toFixed(6);
-        input.setAttribute('data-changed', '1'); // prevent change event
-        if ('createEvent' in document) {
-            var evt = document.createEvent('HTMLEvents');
-            evt.initEvent('change', false, true);
-            input.dispatchEvent(evt);
-        } else {
-            input.fireEvent('onchange');
-        }
-    },
     initYandexMap: function (inputId, mapId) {
         var _this = this,
             input = document.getElementById(inputId),
@@ -143,5 +103,45 @@ alexantr.coordinatesWidget = {
                 }
             }
         };
+    },
+    _initValues: function (inputId, mapId) {
+        var inputValue = document.getElementById(inputId).value,
+            map = document.getElementById(mapId);
+        var mapLat = map.getAttribute('data-lat'),
+            mapLng = map.getAttribute('data-lng');
+        var lat = 0, lng = 0, zoom = 1;
+        if (mapLat && mapLng) {
+            lat = parseFloat(mapLat) || 0;
+            lng = parseFloat(mapLng) || 0;
+        }
+        var showMarker = false;
+        if (inputValue) {
+            var inputLatLng = inputValue.split(/\s*,\s*/);
+            if (inputLatLng.length === 2) {
+                lat = parseFloat(inputLatLng[0]) || 0;
+                lng = parseFloat(inputLatLng[1]) || 0;
+                showMarker = true;
+            }
+        }
+        if (lat !== 0 && lng !== 0) {
+            zoom = showMarker ? 14 : 10;
+        }
+        return {
+            lat: lat,
+            lng: lng,
+            zoom: zoom,
+            showMarker: showMarker
+        };
+    },
+    _changeInputValue: function (input, lat, lng) {
+        input.value = lat.toFixed(6) + ', ' + lng.toFixed(6);
+        input.setAttribute('data-changed', '1'); // prevent change event
+        if ('createEvent' in document) {
+            var evt = document.createEvent('HTMLEvents');
+            evt.initEvent('change', false, true);
+            input.dispatchEvent(evt);
+        } else {
+            input.fireEvent('onchange');
+        }
     }
 };
