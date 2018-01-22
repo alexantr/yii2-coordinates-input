@@ -22,7 +22,9 @@ class YandexMapsAsset extends AssetBundle
             $lang = $this->mapLang;
         } else {
             $appLang = substr(Yii::$app->language, 0, 2);
-            if ($appLang == 'uk') {
+            if ($appLang == 'en') {
+                $lang = 'en_US';
+            } elseif ($appLang == 'uk') {
                 $lang = 'uk_UA';
             } elseif ($appLang == 'tr') {
                 $lang = 'tr_TR';
