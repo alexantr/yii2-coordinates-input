@@ -49,21 +49,40 @@ class CoordinatesInput extends InputWidget
      */
     public function run()
     {
+        $this->registerClientScript();
+        return $this->renderContent();
+    }
+
+    /**
+     * Renders tags
+     * @return string
+     */
+    protected function renderContent()
+    {
         if ($this->hasModel()) {
-            echo Html::activeTextInput($this->model, $this->attribute, $this->options);
+            $content = Html::activeTextInput($this->model, $this->attribute, $this->options) . "\n";
         } else {
-            echo Html::textInput($this->name, $this->value, $this->options);
+            $content = Html::textInput($this->name, $this->value, $this->options) . "\n";
         }
+
+        // append map
         $this->mapOptions['id'] = $this->mapId;
         if ($this->initialLatitude !== null && $this->initialLongitude !== null) {
             $this->mapOptions['data-lat'] = $this->initialLatitude;
             $this->mapOptions['data-lng'] = $this->initialLongitude;
-        } elseif (isset(Yii::$app->params[$this->initialLatLngParamName][0], Yii::$app->params[$this->initialLatLngParamName][1])) {
-            $this->mapOptions['data-lat'] = Yii::$app->params[$this->initialLatLngParamName][0];
-            $this->mapOptions['data-lng'] = Yii::$app->params[$this->initialLatLngParamName][1];
+        } elseif (isset(Yii::$app->params[$this->initialLatLngParamName])) {
+            $initial = Yii::$app->params[$this->initialLatLngParamName];
+            if (isset($initial['lat'], $initial['lng'])) {
+                $this->mapOptions['data-lat'] = $initial['lat'];
+                $this->mapOptions['data-lng'] = $initial['lng'];
+            } elseif (isset($initial[0], $initial[1])) {
+                $this->mapOptions['data-lat'] = $initial[0];
+                $this->mapOptions['data-lng'] = $initial[1];
+            }
         }
-        echo Html::tag('div', '', $this->mapOptions);
-        $this->registerClientScript();
+        $content .= Html::tag('div', '', $this->mapOptions);
+
+        return $content;
     }
 
     /**

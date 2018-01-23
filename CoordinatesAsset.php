@@ -8,9 +8,9 @@ class CoordinatesAsset extends AssetBundle
 {
     public $sourcePath = '@alexantr/coordinates/assets';
     public $css = [
-        'coordinates.widget.css',
+        'coordinates.css',
     ];
     public $js = [
-        'coordinates.widget.js',
+        'coordinates.js',
     ];
 }

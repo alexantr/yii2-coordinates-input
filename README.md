@@ -1,10 +1,6 @@
 # Map coordinates input widget for Yii 2
 
-This extension renders a text input with Google map or Yandex map and allows to set coordinates quickly by clicking on this map.
-
-[![Latest Stable Version](https://img.shields.io/packagist/v/alexantr/yii2-coordinates-input.svg)](https://packagist.org/packages/alexantr/yii2-coordinates-input)
-[![Total Downloads](https://img.shields.io/packagist/dt/alexantr/yii2-coordinates-input.svg)](https://packagist.org/packages/alexantr/yii2-coordinates-input)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/alexantr/yii2-coordinates-input/master/LICENSE)
+This extension renders an input with Google map or Yandex map and allows to set coordinates quickly by clicking on the map.
 
 ## Installation
 
@@ -38,7 +34,13 @@ The following code in a view file would render an input with Google map:
 <?= alexantr\coordinates\CoordinatesInput::widget(['name' => 'attributeName']) ?>
 ```
 
-All widget params with default values:
+If you want to use this input widget in an ActiveForm, it can be done like this:
+
+```php
+<?= $form->field($model, 'attributeName')->widget(alexantr\coordinates\CoordinatesInput::className()) ?>
+```
+
+All widget options with default values:
 
 ```php
 <?= alexantr\coordinates\CoordinatesInput::widget([
@@ -52,8 +54,4 @@ All widget params with default values:
 ]) ?>
 ```
 
-If you want to use this input widget in an ActiveForm, it can be done like this:
-
-```php
-<?= $form->field($model, 'attributeName')->widget(alexantr\coordinates\CoordinatesInput::className()) ?>
-```
+Value of param for `initialLatLngParamName` option can be in two formats: `[53.923172, 27.540036]` or `['lat' => 53.923172, 'lng' => 27.540036]`.
