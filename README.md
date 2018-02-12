@@ -19,8 +19,8 @@ Before use set [Google Maps API key](https://developers.google.com/maps/document
     'components' => [
         'assetManager' => [
             'bundles' => [
-                'alexantr\coordinates\GoogleMapsAsset' => [
-                    'apiKey' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // <- put here
+                'alexantr\coordinates\CoordinatesAsset' => [
+                    'googleMapsApiKey' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // <- put here
                 ],
             ],
         ],

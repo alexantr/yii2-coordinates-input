@@ -7,6 +7,11 @@ use yii\helpers\Html;
 use yii\web\View;
 use yii\widgets\InputWidget;
 
+/**
+ * CoordinatesInput
+ * @link https://developers.google.com/maps/documentation/javascript/tutorial
+ * @link https://tech.yandex.ru/maps/doc/jsapi/2.1/dg/concepts/index-docpage/
+ */
 class CoordinatesInput extends InputWidget
 {
     /**
@@ -92,19 +97,29 @@ class CoordinatesInput extends InputWidget
     protected function registerClientScript()
     {
         $view = $this->getView();
-
-        if ($this->yandexMaps) {
-            YandexMapsAsset::register($view);
-        } else {
-            GoogleMapsAsset::register($view);
-        }
-        CoordinatesAsset::register($view);
+        $bundle = CoordinatesAsset::register($view);
 
         $id = $this->options['id'];
         $mapId = $this->mapId;
 
-        $js = "alexantr.coordinatesWidget." . ($this->yandexMaps ? 'initYandexMap' : 'initGoogleMap') . "('$id', '$mapId');";
-
-        $view->registerJs($js, View::POS_END);
+        if ($this->yandexMaps) {
+            if (!empty($bundle->mapLang)) {
+                $lang = $bundle->mapLang;
+            } else {
+                $appLang = substr(Yii::$app->language, 0, 2);
+                if ($appLang == 'en') {
+                    $lang = 'en_US';
+                } elseif ($appLang == 'uk') {
+                    $lang = 'uk_UA';
+                } elseif ($appLang == 'tr') {
+                    $lang = 'tr_TR';
+                } else {
+                    $lang = 'ru_RU';
+                }
+            }
+            $view->registerJs("alexantr.coordinatesWidget.initYandexMaps('$id', '$mapId', '$lang');", View::POS_END);
+        } else {
+            $view->registerJs("alexantr.coordinatesWidget.initGoogleMap('$id', '$mapId', '{$bundle->googleMapsApiKey}');", View::POS_END);
+        }
     }
 }
