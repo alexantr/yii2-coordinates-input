@@ -119,7 +119,7 @@ class CoordinatesInput extends InputWidget
             }
             $view->registerJs("alexantr.coordinatesWidget.initYandexMaps('$id', '$mapId', '$lang');", View::POS_END);
         } else {
-            $view->registerJs("alexantr.coordinatesWidget.initGoogleMap('$id', '$mapId', '{$bundle->googleMapsApiKey}');", View::POS_END);
+            $view->registerJs("alexantr.coordinatesWidget.initGoogleMaps('$id', '$mapId', '{$bundle->googleMapsApiKey}');", View::POS_END);
         }
     }
 }
