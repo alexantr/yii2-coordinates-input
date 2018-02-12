@@ -4,6 +4,7 @@ namespace alexantr\coordinates;
 
 use Yii;
 use yii\helpers\Html;
+use yii\web\View;
 use yii\widgets\InputWidget;
 
 class CoordinatesInput extends InputWidget
@@ -11,7 +12,7 @@ class CoordinatesInput extends InputWidget
     /**
      * @inheritdoc
      */
-    public $options = ['class' => 'form-control coordinates-form-control'];
+    public $options = ['class' => 'form-control coordinates-input'];
     /**
      * @var array Map tag options
      */
@@ -104,6 +105,6 @@ class CoordinatesInput extends InputWidget
 
         $js = "alexantr.coordinatesWidget." . ($this->yandexMaps ? 'initYandexMap' : 'initGoogleMap') . "('$id', '$mapId');";
 
-        $view->registerJs($js);
+        $view->registerJs($js, View::POS_END);
     }
 }
