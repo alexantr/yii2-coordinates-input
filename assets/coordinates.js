@@ -28,8 +28,8 @@ alexantr.coordinatesWidget = (function (d) {
             if ('lat' in options && 'lng' in options) {
                 lat = options.lat;
                 lng = options.lng;
+                zoom = ('zoom' in options) ? options.zoom : 10;
             }
-            zoom = ('zoom' in options) ? options.zoom : 10;
         }
         return {
             lat: lat,
