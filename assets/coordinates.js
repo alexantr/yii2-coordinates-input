@@ -136,19 +136,25 @@ alexantr.coordinatesWidget = (function (d) {
     return {
         yandexMapsApiCallback: function () {
             yandexMapsApiLoading = false;
-            for (var i = 0; i < yandexMapsCallbacks.length; i++) {
-                runYandexMaps(yandexMapsCallbacks[i].inputId, yandexMapsCallbacks[i].mapId, yandexMapsCallbacks[i].options);
-            }
+            setTimeout(function () {
+                for (var i = 0; i < yandexMapsCallbacks.length; i++) {
+                    runYandexMaps(yandexMapsCallbacks[i].inputId, yandexMapsCallbacks[i].mapId, yandexMapsCallbacks[i].options);
+                }
+            }, 1000);
         },
         googleMapsApiCallback: function () {
             googleMapsApiLoading = false;
-            for (var i = 0; i < googleMapsCallbacks.length; i++) {
-                runGoogleMaps(googleMapsCallbacks[i].inputId, googleMapsCallbacks[i].mapId, googleMapsCallbacks[i].options);
-            }
+            setTimeout(function () {
+                for (var i = 0; i < googleMapsCallbacks.length; i++) {
+                    runGoogleMaps(googleMapsCallbacks[i].inputId, googleMapsCallbacks[i].mapId, googleMapsCallbacks[i].options);
+                }
+            }, 1000);
         },
         initYandexMaps: function (inputId, mapId, options, lang) {
             if (typeof ymaps !== 'undefined') {
-                runYandexMaps(inputId, mapId, options);
+                setTimeout(function () {
+                    runYandexMaps(inputId, mapId, options);
+                }, 1000);
             } else {
                 yandexMapsCallbacks.push({inputId: inputId, mapId: mapId, options: options});
                 if (!yandexMapsApiLoading) {
@@ -156,13 +162,17 @@ alexantr.coordinatesWidget = (function (d) {
                     var script = d.createElement('script');
                     script.type = 'text/javascript';
                     script.src = 'https://api-maps.yandex.ru/2.1/?lang=' + lang + '&onload=alexantr.coordinatesWidget.yandexMapsApiCallback';
-                    d.body.appendChild(script);
+                    script.async = true;
+                    var scriptTag = d.getElementsByTagName('script')[0];
+                    scriptTag.parentNode.insertBefore(script, scriptTag);
                 }
             }
         },
         initGoogleMaps: function (inputId, mapId, options, apiKey) {
             if (typeof google === 'object' && typeof google.maps === 'object') {
-                runGoogleMaps(inputId, mapId, options);
+                setTimeout(function () {
+                    runGoogleMaps(inputId, mapId, options);
+                }, 1000);
             } else {
                 googleMapsCallbacks.push({inputId: inputId, mapId: mapId, options: options});
                 if (!googleMapsApiLoading) {
@@ -170,7 +180,9 @@ alexantr.coordinatesWidget = (function (d) {
                     var script = d.createElement('script');
                     script.type = 'text/javascript';
                     script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&callback=alexantr.coordinatesWidget.googleMapsApiCallback';
-                    d.body.appendChild(script);
+                    script.async = true;
+                    var scriptTag = d.getElementsByTagName('script')[0];
+                    scriptTag.parentNode.insertBefore(script, scriptTag);
                 }
             }
         }
