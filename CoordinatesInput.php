@@ -43,7 +43,7 @@ class CoordinatesInput extends InputWidget
     {
         parent::init();
         if (!isset($this->mapOptions['id'])) {
-            $this->mapOptions['id'] = $this->options['id'] . '-map';
+            $this->mapOptions['id'] = $this->options['id'] . uniqid('-map');
         }
     }
 
