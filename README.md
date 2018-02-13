@@ -7,12 +7,14 @@ This extension renders an input with Google map or Yandex map and allows to set 
 Install extension through [composer](http://getcomposer.org/):
 
 ```
-composer require "alexantr/yii2-coordinates-input"
+composer require alexantr/yii2-coordinates-input
 ```
 
-## Usage
+## Configuring
 
-Before use set [Google Maps API key](https://developers.google.com/maps/documentation/javascript/get-api-key) in application config:
+At first set [Google Maps API key](https://developers.google.com/maps/documentation/javascript/get-api-key) in application config.
+Additionally you can set [Yandex Maps language](https://tech.yandex.ru/maps/doc/jsapi/2.1/dg/concepts/localization-docpage/)
+and initial coordinates for all maps.
 
 ```php
 [
@@ -20,13 +22,17 @@ Before use set [Google Maps API key](https://developers.google.com/maps/document
         'assetManager' => [
             'bundles' => [
                 'alexantr\coordinates\CoordinatesAsset' => [
-                    'googleMapsApiKey' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // <- put here
+                    'googleMapsApiKey' => 'UBcsRlxWxBjmZBvrW154fXJ4eJeeO4TFMp9pRLi', // <- put api key here
+                    'yandexMapsLang' => 'en_US',
+                    'initialCoordinates' => [-53.106392, 73.528748], // [latitude, longitude]
                 ],
             ],
         ],
     ],
 ]
 ```
+
+## Usage
 
 The following code in a view file would render an input with Google map:
 
@@ -37,7 +43,7 @@ The following code in a view file would render an input with Google map:
 If you want to use this input widget in an ActiveForm, it can be done like this:
 
 ```php
-<?= $form->field($model, 'attributeName')->widget(alexantr\coordinates\CoordinatesInput::className()) ?>
+<?= $form->field($model, 'attributeName')->widget(alexantr\coordinates\CoordinatesInput::className(), ['yandexMaps' => true]) ?>
 ```
 
 All widget options with default values:
@@ -45,13 +51,12 @@ All widget options with default values:
 ```php
 <?= alexantr\coordinates\CoordinatesInput::widget([
     'name' => 'attributeName',
-    'options' => ['class' => 'form-control coordinates-form-control'],
+    // there is
+    'options' => ['class' => 'form-control coordinates-input'],
     'mapOptions' => ['class' => 'coordinates-map-container'],
-    'initialLatitude' => null,
-    'initialLongitude' => null,
-    'initialLatLngParamName' => 'coordinates.initialLatLng', // App param name with initial coordinates
+    'initialCoordinates' => null,
     'yandexMaps' => false, // Set to true to use Yandex maps instead Google maps
 ]) ?>
 ```
 
-Value of param for `initialLatLngParamName` option can be in two formats: `[53.923172, 27.540036]` or `['lat' => 53.923172, 'lng' => 27.540036]`.
+Value of `initialCoordinates` can be in two formats: `[53.923172, 27.540036]` or `['lat' => 53.923172, 'lng' => 27.540036]`.

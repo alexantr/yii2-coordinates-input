@@ -10,27 +10,26 @@ alexantr.coordinatesWidget = (function (d) {
         yandexMapsCallbacks = [],
         googleMapsCallbacks = [];
 
-    function initValues(inputId, mapId) {
-        var inputValue = d.getElementById(inputId).value,
-            map = d.getElementById(mapId);
-        var mapLat = map.getAttribute('data-lat'),
-            mapLng = map.getAttribute('data-lng');
-        var lat = 0, lng = 0, zoom = 1;
-        if (mapLat && mapLng) {
-            lat = parseFloat(mapLat) || 0;
-            lng = parseFloat(mapLng) || 0;
-        }
-        var showMarker = false;
+    function initValues(inputId, coordinates) {
+        var inputValue = d.getElementById(inputId).value;
+        var lat = 0, lng = 0, zoom = 1, showMarker = false;
+        // check input value
         if (inputValue) {
             var inputLatLng = inputValue.split(/\s*,\s*/);
             if (inputLatLng.length === 2) {
                 lat = parseFloat(inputLatLng[0]) || 0;
                 lng = parseFloat(inputLatLng[1]) || 0;
                 showMarker = true;
+                zoom = 14;
             }
         }
-        if (lat !== 0 && lng !== 0) {
-            zoom = showMarker ? 14 : 10;
+        // no input value
+        if (!showMarker) {
+            if ('lat' in coordinates && 'lng' in coordinates) {
+                lat = coordinates.lat;
+                lng = coordinates.lng;
+                zoom = 10;
+            }
         }
         return {
             lat: lat,
@@ -52,59 +51,56 @@ alexantr.coordinatesWidget = (function (d) {
         }
     }
 
-    function runYandexMaps(inputId, mapId) {
+    function runYandexMaps(inputId, mapId, coordinates) {
         var input = d.getElementById(inputId),
-            values = initValues(inputId, mapId),
+            values = initValues(inputId, coordinates),
             placemarkPreset = 'islands#redDotIcon';
         var lat = values.lat,
             lng = values.lng,
             zoom = values.zoom,
             showMarker = values.showMarker;
-        ymaps.ready(function () {
-            var yMap = new ymaps.Map(mapId, {
-                center: [lat, lng],
-                zoom: zoom,
-                controls: ['smallMapDefaultSet']
-            });
-            //yMap.behaviors.disable(['scrollZoom']);
-            var yPlacemark;
-            if (showMarker) {
-                yPlacemark = new ymaps.Placemark([lat, lng], {}, {preset: placemarkPreset});
-                yMap.geoObjects.add(yPlacemark);
-            }
-            yMap.events.add('click', function (e) {
-                var coords = e.get('coords');
-                if (typeof yPlacemark !== 'undefined') {
-                    yMap.geoObjects.remove(yPlacemark);
-                }
-                yPlacemark = new ymaps.Placemark(coords, {}, {preset: placemarkPreset});
-                yMap.geoObjects.add(yPlacemark);
-                changeInputValue(input, coords[0], coords[1]);
-            });
-            input.onchange = function () {
-                if (input.getAttribute('data-changed')) {
-                    input.removeAttribute('data-changed');
-                } else if (input.value) {
-                    var inputLatLng = input.value.split(/\s*,\s*/);
-                    if (inputLatLng.length === 2) {
-                        var lat = parseFloat(inputLatLng[0]) || 0;
-                        var lng = parseFloat(inputLatLng[1]) || 0;
-                        yMap.setCenter([lat, lng], 14);
-                        if (typeof yPlacemark !== 'undefined') {
-                            yMap.geoObjects.remove(yPlacemark);
-                        }
-                        yPlacemark = new ymaps.Placemark([lat, lng], {}, {preset: placemarkPreset});
-                        yMap.geoObjects.add(yPlacemark);
-                    }
-                }
-            };
+        var yMap = new ymaps.Map(mapId, {
+            center: [lat, lng],
+            zoom: zoom,
+            controls: ['smallMapDefaultSet']
         });
+        var yPlacemark;
+        if (showMarker) {
+            yPlacemark = new ymaps.Placemark([lat, lng], {}, {preset: placemarkPreset});
+            yMap.geoObjects.add(yPlacemark);
+        }
+        yMap.events.add('click', function (e) {
+            var coords = e.get('coords');
+            if (typeof yPlacemark !== 'undefined') {
+                yMap.geoObjects.remove(yPlacemark);
+            }
+            yPlacemark = new ymaps.Placemark(coords, {}, {preset: placemarkPreset});
+            yMap.geoObjects.add(yPlacemark);
+            changeInputValue(input, coords[0], coords[1]);
+        });
+        input.onchange = function () {
+            if (input.getAttribute('data-changed')) {
+                input.removeAttribute('data-changed');
+            } else if (input.value) {
+                var inputLatLng = input.value.split(/\s*,\s*/);
+                if (inputLatLng.length === 2) {
+                    var lat = parseFloat(inputLatLng[0]) || 0;
+                    var lng = parseFloat(inputLatLng[1]) || 0;
+                    yMap.setCenter([lat, lng], 14);
+                    if (typeof yPlacemark !== 'undefined') {
+                        yMap.geoObjects.remove(yPlacemark);
+                    }
+                    yPlacemark = new ymaps.Placemark([lat, lng], {}, {preset: placemarkPreset});
+                    yMap.geoObjects.add(yPlacemark);
+                }
+            }
+        };
     }
 
-    function runGoogleMaps(inputId, mapId) {
+    function runGoogleMaps(inputId, mapId, coordinates) {
         var input = d.getElementById(inputId),
             map = d.getElementById(mapId),
-            values = initValues(inputId, mapId);
+            values = initValues(inputId, coordinates);
         var lat = values.lat,
             lng = values.lng,
             zoom = values.zoom,
@@ -159,20 +155,20 @@ alexantr.coordinatesWidget = (function (d) {
         yandexMapsApiCallback: function () {
             yandexMapsApiLoading = false;
             for (var i = 0; i < yandexMapsCallbacks.length; i++) {
-                runYandexMaps(yandexMapsCallbacks[i].inputId, yandexMapsCallbacks[i].mapId);
+                runYandexMaps(yandexMapsCallbacks[i].inputId, yandexMapsCallbacks[i].mapId, yandexMapsCallbacks[i].coordinates);
             }
         },
         googleMapsApiCallback: function () {
             googleMapsApiLoading = false;
             for (var i = 0; i < googleMapsCallbacks.length; i++) {
-                runGoogleMaps(googleMapsCallbacks[i].inputId, googleMapsCallbacks[i].mapId);
+                runGoogleMaps(googleMapsCallbacks[i].inputId, googleMapsCallbacks[i].mapId, googleMapsCallbacks[i].coordinates);
             }
         },
-        initYandexMaps: function (inputId, mapId, lang) {
+        initYandexMaps: function (inputId, mapId, coordinates, lang) {
             if (typeof ymaps !== 'undefined') {
-                runYandexMaps(inputId, mapId);
+                runYandexMaps(inputId, mapId, coordinates);
             } else {
-                yandexMapsCallbacks.push({inputId: inputId, mapId: mapId});
+                yandexMapsCallbacks.push({inputId: inputId, mapId: mapId, coordinates: coordinates});
                 if (!yandexMapsApiLoading) {
                     yandexMapsApiLoading = true;
                     var script = d.createElement('script');
@@ -182,11 +178,11 @@ alexantr.coordinatesWidget = (function (d) {
                 }
             }
         },
-        initGoogleMaps: function (inputId, mapId, apiKey) {
+        initGoogleMaps: function (inputId, mapId, coordinates, apiKey) {
             if (typeof google === 'object' && typeof google.maps === 'object') {
-                runGoogleMaps(inputId, mapId);
+                runGoogleMaps(inputId, mapId, coordinates);
             } else {
-                googleMapsCallbacks.push({inputId: inputId, mapId: mapId});
+                googleMapsCallbacks.push({inputId: inputId, mapId: mapId, coordinates: coordinates});
                 if (!googleMapsApiLoading) {
                     googleMapsApiLoading = true;
                     var script = d.createElement('script');

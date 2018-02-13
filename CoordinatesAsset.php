@@ -6,6 +6,13 @@ use yii\web\AssetBundle;
 
 class CoordinatesAsset extends AssetBundle
 {
+    public $sourcePath = '@alexantr/coordinates/assets';
+    public $css = [
+        'coordinates.css',
+    ];
+    public $js = [
+        'coordinates.js',
+    ];
     /**
      * @var string Google API key
      * @see https://developers.google.com/maps/documentation/javascript/get-api-key
@@ -16,12 +23,8 @@ class CoordinatesAsset extends AssetBundle
      * @see https://tech.yandex.ru/maps/doc/jsapi/2.1/dg/concepts/localization-docpage/
      */
     public $yandexMapsLang;
-
-    public $sourcePath = '@alexantr/coordinates/assets';
-    public $css = [
-        'coordinates.css',
-    ];
-    public $js = [
-        'coordinates.js',
-    ];
+    /**
+     * @var array Initial coordinates for all maps
+     */
+    public $initialCoordinates;
 }

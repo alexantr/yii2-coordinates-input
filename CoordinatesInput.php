@@ -4,6 +4,7 @@ namespace alexantr\coordinates;
 
 use Yii;
 use yii\helpers\Html;
+use yii\helpers\Json;
 use yii\web\View;
 use yii\widgets\InputWidget;
 
@@ -19,27 +20,17 @@ class CoordinatesInput extends InputWidget
      */
     public $options = ['class' => 'form-control coordinates-input'];
     /**
-     * @var array Map tag options
+     * @var array Map container options
      */
     public $mapOptions = ['class' => 'coordinates-map-container'];
     /**
-     * @var float|string Initial map center latitude
+     * @var array Initial map center. Has higher priority over $initialCoordinates from CoordinatesAsset
      */
-    public $initialLatitude;
-    /**
-     * @var float|string Initial map center longitude
-     */
-    public $initialLongitude;
-    /**
-     * @var string App param name contains initial coordinates
-     */
-    public $initialLatLngParamName = 'coordinates.initialLatLng';
+    public $initialCoordinates;
     /**
      * @var bool Use Yandex Maps instead Google Maps
      */
     public $yandexMaps = false;
-
-    private $mapId;
 
     /**
      * @inheritdoc
@@ -47,7 +38,9 @@ class CoordinatesInput extends InputWidget
     public function init()
     {
         parent::init();
-        $this->mapId = $this->options['id'] . uniqid('_map');
+        if (!isset($this->mapOptions['id'])) {
+            $this->mapOptions['id'] = $this->options['id'] . '-map';
+        }
     }
 
     /**
@@ -70,24 +63,7 @@ class CoordinatesInput extends InputWidget
         } else {
             $content = Html::textInput($this->name, $this->value, $this->options) . "\n";
         }
-
-        // append map
-        $this->mapOptions['id'] = $this->mapId;
-        if ($this->initialLatitude !== null && $this->initialLongitude !== null) {
-            $this->mapOptions['data-lat'] = $this->initialLatitude;
-            $this->mapOptions['data-lng'] = $this->initialLongitude;
-        } elseif (isset(Yii::$app->params[$this->initialLatLngParamName])) {
-            $initial = Yii::$app->params[$this->initialLatLngParamName];
-            if (isset($initial['lat'], $initial['lng'])) {
-                $this->mapOptions['data-lat'] = $initial['lat'];
-                $this->mapOptions['data-lng'] = $initial['lng'];
-            } elseif (isset($initial[0], $initial[1])) {
-                $this->mapOptions['data-lat'] = $initial[0];
-                $this->mapOptions['data-lng'] = $initial[1];
-            }
-        }
         $content .= Html::tag('div', '', $this->mapOptions);
-
         return $content;
     }
 
@@ -100,11 +76,34 @@ class CoordinatesInput extends InputWidget
         $bundle = CoordinatesAsset::register($view);
 
         $id = $this->options['id'];
-        $mapId = $this->mapId;
+        $mapId = $this->mapOptions['id'];
+
+        $coordinates = [];
+
+        // set initial coordinates
+        if ($this->initialCoordinates !== null) {
+            if (isset($this->initialCoordinates['lat'], $this->initialCoordinates['lng'])) {
+                $coordinates['lat'] = $this->initialCoordinates['lat'];
+                $coordinates['lng'] = $this->initialCoordinates['lng'];
+            } elseif (isset($this->initialCoordinates[0], $this->initialCoordinates[1])) {
+                $coordinates['lat'] = $this->initialCoordinates[0];
+                $coordinates['lng'] = $this->initialCoordinates[1];
+            }
+        } elseif ($bundle->initialCoordinates !== null) {
+            if (isset($bundle->initialCoordinates['lat'], $bundle->initialCoordinates['lng'])) {
+                $coordinates['lat'] = $bundle->initialCoordinates['lat'];
+                $coordinates['lng'] = $bundle->initialCoordinates['lng'];
+            } elseif (isset($bundle->initialCoordinates[0], $bundle->initialCoordinates[1])) {
+                $coordinates['lat'] = $bundle->initialCoordinates[0];
+                $coordinates['lng'] = $bundle->initialCoordinates[1];
+            }
+        }
+
+        $encodedCoordinates = !empty($coordinates) ? Json::htmlEncode($coordinates) : '{}';
 
         if ($this->yandexMaps) {
-            if (!empty($bundle->mapLang)) {
-                $lang = $bundle->mapLang;
+            if (!empty($bundle->yandexMapsLang)) {
+                $lang = $bundle->yandexMapsLang;
             } else {
                 $appLang = substr(Yii::$app->language, 0, 2);
                 if ($appLang == 'en') {
@@ -117,9 +116,9 @@ class CoordinatesInput extends InputWidget
                     $lang = 'ru_RU';
                 }
             }
-            $view->registerJs("alexantr.coordinatesWidget.initYandexMaps('$id', '$mapId', '$lang');", View::POS_END);
+            $view->registerJs("alexantr.coordinatesWidget.initYandexMaps('$id', '$mapId', $encodedCoordinates, '$lang');", View::POS_END);
         } else {
-            $view->registerJs("alexantr.coordinatesWidget.initGoogleMaps('$id', '$mapId', '{$bundle->googleMapsApiKey}');", View::POS_END);
+            $view->registerJs("alexantr.coordinatesWidget.initGoogleMaps('$id', '$mapId', $encodedCoordinates, '{$bundle->googleMapsApiKey}');", View::POS_END);
         }
     }
 }
