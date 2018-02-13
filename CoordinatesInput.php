@@ -28,6 +28,10 @@ class CoordinatesInput extends InputWidget
      */
     public $initialCoordinates;
     /**
+     * @var int Initial map zoom. Default is 10. Has higher priority over $initialZoom from CoordinatesAsset
+     */
+    public $initialZoom;
+    /**
      * @var bool Use Yandex Maps instead Google Maps
      */
     public $yandexMaps = false;
@@ -78,47 +82,74 @@ class CoordinatesInput extends InputWidget
         $id = $this->options['id'];
         $mapId = $this->mapOptions['id'];
 
-        $coordinates = [];
+        $options = $this->getInitialOptions($bundle);
+        $encodedOptions = !empty($options) ? Json::htmlEncode($options) : '{}';
+
+        if ($this->yandexMaps) {
+            $lang = $this->getYandexMapsLanguage($bundle);
+            $view->registerJs("alexantr.coordinatesWidget.initYandexMaps('$id', '$mapId', $encodedOptions, '$lang');", View::POS_END);
+        } else {
+            $view->registerJs("alexantr.coordinatesWidget.initGoogleMaps('$id', '$mapId', $encodedOptions, '{$bundle->googleMapsApiKey}');", View::POS_END);
+        }
+    }
+
+    /**
+     * @param CoordinatesAsset $bundle
+     * @return array
+     */
+    protected function getInitialOptions(CoordinatesAsset $bundle)
+    {
+        $options = [];
 
         // set initial coordinates
         if ($this->initialCoordinates !== null) {
             if (isset($this->initialCoordinates['lat'], $this->initialCoordinates['lng'])) {
-                $coordinates['lat'] = $this->initialCoordinates['lat'];
-                $coordinates['lng'] = $this->initialCoordinates['lng'];
+                $options['lat'] = $this->initialCoordinates['lat'];
+                $options['lng'] = $this->initialCoordinates['lng'];
             } elseif (isset($this->initialCoordinates[0], $this->initialCoordinates[1])) {
-                $coordinates['lat'] = $this->initialCoordinates[0];
-                $coordinates['lng'] = $this->initialCoordinates[1];
+                $options['lat'] = $this->initialCoordinates[0];
+                $options['lng'] = $this->initialCoordinates[1];
             }
         } elseif ($bundle->initialCoordinates !== null) {
             if (isset($bundle->initialCoordinates['lat'], $bundle->initialCoordinates['lng'])) {
-                $coordinates['lat'] = $bundle->initialCoordinates['lat'];
-                $coordinates['lng'] = $bundle->initialCoordinates['lng'];
+                $options['lat'] = $bundle->initialCoordinates['lat'];
+                $options['lng'] = $bundle->initialCoordinates['lng'];
             } elseif (isset($bundle->initialCoordinates[0], $bundle->initialCoordinates[1])) {
-                $coordinates['lat'] = $bundle->initialCoordinates[0];
-                $coordinates['lng'] = $bundle->initialCoordinates[1];
+                $options['lat'] = $bundle->initialCoordinates[0];
+                $options['lng'] = $bundle->initialCoordinates[1];
             }
         }
 
-        $encodedCoordinates = !empty($coordinates) ? Json::htmlEncode($coordinates) : '{}';
+        // set initial zoom
+        if ($this->initialZoom !== null) {
+            $options['zoom'] = $this->initialZoom;
+        } elseif ($bundle->initialZoom !== null) {
+            $options['zoom'] = $bundle->initialZoom;
+        }
 
-        if ($this->yandexMaps) {
-            if (!empty($bundle->yandexMapsLang)) {
-                $lang = $bundle->yandexMapsLang;
-            } else {
-                $appLang = substr(Yii::$app->language, 0, 2);
-                if ($appLang == 'en') {
-                    $lang = 'en_US';
-                } elseif ($appLang == 'uk') {
-                    $lang = 'uk_UA';
-                } elseif ($appLang == 'tr') {
-                    $lang = 'tr_TR';
-                } else {
-                    $lang = 'ru_RU';
-                }
-            }
-            $view->registerJs("alexantr.coordinatesWidget.initYandexMaps('$id', '$mapId', $encodedCoordinates, '$lang');", View::POS_END);
+        return $options;
+    }
+
+    /**
+     * @param CoordinatesAsset $bundle
+     * @return string
+     */
+    protected function getYandexMapsLanguage(CoordinatesAsset $bundle)
+    {
+        if (!empty($bundle->yandexMapsLang)) {
+            $lang = $bundle->yandexMapsLang;
         } else {
-            $view->registerJs("alexantr.coordinatesWidget.initGoogleMaps('$id', '$mapId', $encodedCoordinates, '{$bundle->googleMapsApiKey}');", View::POS_END);
+            $appLang = substr(Yii::$app->language, 0, 2);
+            if ($appLang == 'en') {
+                $lang = 'en_US';
+            } elseif ($appLang == 'uk') {
+                $lang = 'uk_UA';
+            } elseif ($appLang == 'tr') {
+                $lang = 'tr_TR';
+            } else {
+                $lang = 'ru_RU';
+            }
         }
+        return $lang;
     }
 }

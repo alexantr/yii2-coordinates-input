@@ -25,6 +25,7 @@ and initial coordinates for all maps.
                     'googleMapsApiKey' => 'UBcsRlxWxBjmZBvrW154fXJ4eJeeO4TFMp9pRLi', // <- put api key here
                     'yandexMapsLang' => 'en_US',
                     'initialCoordinates' => [-53.106392, 73.528748], // [latitude, longitude]
+                    'initialZoom' => 8, // Default is 10
                 ],
             ],
         ],
@@ -55,6 +56,7 @@ All widget options with default values:
     'options' => ['class' => 'form-control coordinates-input'],
     'mapOptions' => ['class' => 'coordinates-map-container'],
     'initialCoordinates' => null,
+    'initialZoom' => null,
     'yandexMaps' => false, // Set to true to use Yandex maps instead Google maps
 ]) ?>
 ```

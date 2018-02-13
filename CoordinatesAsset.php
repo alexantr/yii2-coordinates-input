@@ -27,4 +27,8 @@ class CoordinatesAsset extends AssetBundle
      * @var array Initial coordinates for all maps
      */
     public $initialCoordinates;
+    /**
+     * @var int Initial zoom for all maps. Default is 10
+     */
+    public $initialZoom;
 }

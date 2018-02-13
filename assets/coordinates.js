@@ -10,7 +10,7 @@ alexantr.coordinatesWidget = (function (d) {
         yandexMapsCallbacks = [],
         googleMapsCallbacks = [];
 
-    function initValues(inputId, coordinates) {
+    function initOptions(inputId, options) {
         var inputValue = d.getElementById(inputId).value;
         var lat = 0, lng = 0, zoom = 1, showMarker = false;
         // check input value
@@ -25,11 +25,11 @@ alexantr.coordinatesWidget = (function (d) {
         }
         // no input value
         if (!showMarker) {
-            if ('lat' in coordinates && 'lng' in coordinates) {
-                lat = coordinates.lat;
-                lng = coordinates.lng;
-                zoom = 10;
+            if ('lat' in options && 'lng' in options) {
+                lat = options.lat;
+                lng = options.lng;
             }
+            zoom = ('zoom' in options) ? options.zoom : 10;
         }
         return {
             lat: lat,
@@ -51,31 +51,27 @@ alexantr.coordinatesWidget = (function (d) {
         }
     }
 
-    function runYandexMaps(inputId, mapId, coordinates) {
+    function runYandexMaps(inputId, mapId, options) {
         var input = d.getElementById(inputId),
-            values = initValues(inputId, coordinates),
+            opt = initOptions(inputId, options),
             placemarkPreset = 'islands#redDotIcon';
-        var lat = values.lat,
-            lng = values.lng,
-            zoom = values.zoom,
-            showMarker = values.showMarker;
         var yMap = new ymaps.Map(mapId, {
-            center: [lat, lng],
-            zoom: zoom,
+            center: [opt.lat, opt.lng],
+            zoom: opt.zoom,
             controls: ['smallMapDefaultSet']
         });
-        var yPlacemark;
-        if (showMarker) {
-            yPlacemark = new ymaps.Placemark([lat, lng], {}, {preset: placemarkPreset});
-            yMap.geoObjects.add(yPlacemark);
+        var marker;
+        if (opt.showMarker) {
+            marker = new ymaps.Placemark([opt.lat, opt.lng], {}, {preset: placemarkPreset});
+            yMap.geoObjects.add(marker);
         }
         yMap.events.add('click', function (e) {
             var coords = e.get('coords');
-            if (typeof yPlacemark !== 'undefined') {
-                yMap.geoObjects.remove(yPlacemark);
+            if (typeof marker !== 'undefined') {
+                yMap.geoObjects.remove(marker);
             }
-            yPlacemark = new ymaps.Placemark(coords, {}, {preset: placemarkPreset});
-            yMap.geoObjects.add(yPlacemark);
+            marker = new ymaps.Placemark(coords, {}, {preset: placemarkPreset});
+            yMap.geoObjects.add(marker);
             changeInputValue(input, coords[0], coords[1]);
         });
         input.onchange = function () {
@@ -87,45 +83,34 @@ alexantr.coordinatesWidget = (function (d) {
                     var lat = parseFloat(inputLatLng[0]) || 0;
                     var lng = parseFloat(inputLatLng[1]) || 0;
                     yMap.setCenter([lat, lng], 14);
-                    if (typeof yPlacemark !== 'undefined') {
-                        yMap.geoObjects.remove(yPlacemark);
+                    if (typeof marker !== 'undefined') {
+                        yMap.geoObjects.remove(marker);
                     }
-                    yPlacemark = new ymaps.Placemark([lat, lng], {}, {preset: placemarkPreset});
-                    yMap.geoObjects.add(yPlacemark);
+                    marker = new ymaps.Placemark([lat, lng], {}, {preset: placemarkPreset});
+                    yMap.geoObjects.add(marker);
                 }
             }
         };
     }
 
-    function runGoogleMaps(inputId, mapId, coordinates) {
+    function runGoogleMaps(inputId, mapId, options) {
         var input = d.getElementById(inputId),
             map = d.getElementById(mapId),
-            values = initValues(inputId, coordinates);
-        var lat = values.lat,
-            lng = values.lng,
-            zoom = values.zoom,
-            showMarker = values.showMarker;
-        var latlng = new google.maps.LatLng(lat, lng);
-        var options = {
-            zoom: zoom,
+            opt = initOptions(inputId, options);
+        var latlng = new google.maps.LatLng(opt.lat, opt.lng);
+        var gMap = new google.maps.Map(map, {
+            zoom: opt.zoom,
             center: latlng
-        };
-        var gMap = new google.maps.Map(map, options);
+        });
         var marker;
-        if (showMarker) {
-            marker = new google.maps.Marker({
-                position: latlng,
-                map: gMap
-            });
+        if (opt.showMarker) {
+            marker = new google.maps.Marker({position: latlng, map: gMap});
         }
         google.maps.event.addListener(gMap, 'click', function (e) {
             if (typeof marker !== 'undefined') {
                 marker.setMap(null);
             }
-            marker = new google.maps.Marker({
-                position: e.latLng,
-                map: gMap
-            });
+            marker = new google.maps.Marker({position: e.latLng, map: gMap});
             changeInputValue(input, e.latLng.lat(), e.latLng.lng());
         });
         input.onchange = function () {
@@ -134,18 +119,15 @@ alexantr.coordinatesWidget = (function (d) {
             } else if (input.value) {
                 var inputLatLng = input.value.split(/\s*,\s*/);
                 if (inputLatLng.length === 2) {
-                    lat = parseFloat(inputLatLng[0]) || 0;
-                    lng = parseFloat(inputLatLng[1]) || 0;
+                    var lat = parseFloat(inputLatLng[0]) || 0;
+                    var lng = parseFloat(inputLatLng[1]) || 0;
                     var latlng = new google.maps.LatLng(lat, lng);
                     gMap.panTo(latlng);
                     gMap.setZoom(14);
                     if (typeof marker !== 'undefined') {
                         marker.setMap(null);
                     }
-                    marker = new google.maps.Marker({
-                        position: latlng,
-                        map: gMap
-                    });
+                    marker = new google.maps.Marker({position: latlng, map: gMap});
                 }
             }
         };
@@ -155,20 +137,20 @@ alexantr.coordinatesWidget = (function (d) {
         yandexMapsApiCallback: function () {
             yandexMapsApiLoading = false;
             for (var i = 0; i < yandexMapsCallbacks.length; i++) {
-                runYandexMaps(yandexMapsCallbacks[i].inputId, yandexMapsCallbacks[i].mapId, yandexMapsCallbacks[i].coordinates);
+                runYandexMaps(yandexMapsCallbacks[i].inputId, yandexMapsCallbacks[i].mapId, yandexMapsCallbacks[i].options);
             }
         },
         googleMapsApiCallback: function () {
             googleMapsApiLoading = false;
             for (var i = 0; i < googleMapsCallbacks.length; i++) {
-                runGoogleMaps(googleMapsCallbacks[i].inputId, googleMapsCallbacks[i].mapId, googleMapsCallbacks[i].coordinates);
+                runGoogleMaps(googleMapsCallbacks[i].inputId, googleMapsCallbacks[i].mapId, googleMapsCallbacks[i].options);
             }
         },
-        initYandexMaps: function (inputId, mapId, coordinates, lang) {
+        initYandexMaps: function (inputId, mapId, options, lang) {
             if (typeof ymaps !== 'undefined') {
-                runYandexMaps(inputId, mapId, coordinates);
+                runYandexMaps(inputId, mapId, options);
             } else {
-                yandexMapsCallbacks.push({inputId: inputId, mapId: mapId, coordinates: coordinates});
+                yandexMapsCallbacks.push({inputId: inputId, mapId: mapId, options: options});
                 if (!yandexMapsApiLoading) {
                     yandexMapsApiLoading = true;
                     var script = d.createElement('script');
@@ -178,11 +160,11 @@ alexantr.coordinatesWidget = (function (d) {
                 }
             }
         },
-        initGoogleMaps: function (inputId, mapId, coordinates, apiKey) {
+        initGoogleMaps: function (inputId, mapId, options, apiKey) {
             if (typeof google === 'object' && typeof google.maps === 'object') {
-                runGoogleMaps(inputId, mapId, coordinates);
+                runGoogleMaps(inputId, mapId, options);
             } else {
-                googleMapsCallbacks.push({inputId: inputId, mapId: mapId, coordinates: coordinates});
+                googleMapsCallbacks.push({inputId: inputId, mapId: mapId, options: options});
                 if (!googleMapsApiLoading) {
                     googleMapsApiLoading = true;
                     var script = d.createElement('script');
