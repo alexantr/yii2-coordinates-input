@@ -91,6 +91,11 @@ alexantr.coordinatesWidget = (function (d) {
                 }
             }
         };
+
+        // workaround for blank map in some cases
+        setTimeout(function () {
+            yMap.container.fitToViewport();
+        }, 200);
     }
 
     function runGoogleMaps(inputId, mapId, options) {
@@ -131,30 +136,29 @@ alexantr.coordinatesWidget = (function (d) {
                 }
             }
         };
+
+        // workaround for blank map in some cases
+        setTimeout(function () {
+            google.maps.event.trigger(gMap, 'resize');
+        }, 200);
     }
 
     return {
         yandexMapsApiCallback: function () {
             yandexMapsApiLoading = false;
-            setTimeout(function () {
-                for (var i = 0; i < yandexMapsCallbacks.length; i++) {
-                    runYandexMaps(yandexMapsCallbacks[i].inputId, yandexMapsCallbacks[i].mapId, yandexMapsCallbacks[i].options);
-                }
-            }, 1000);
+            for (var i = 0; i < yandexMapsCallbacks.length; i++) {
+                runYandexMaps(yandexMapsCallbacks[i].inputId, yandexMapsCallbacks[i].mapId, yandexMapsCallbacks[i].options);
+            }
         },
         googleMapsApiCallback: function () {
             googleMapsApiLoading = false;
-            setTimeout(function () {
-                for (var i = 0; i < googleMapsCallbacks.length; i++) {
-                    runGoogleMaps(googleMapsCallbacks[i].inputId, googleMapsCallbacks[i].mapId, googleMapsCallbacks[i].options);
-                }
-            }, 1000);
+            for (var i = 0; i < googleMapsCallbacks.length; i++) {
+                runGoogleMaps(googleMapsCallbacks[i].inputId, googleMapsCallbacks[i].mapId, googleMapsCallbacks[i].options);
+            }
         },
         initYandexMaps: function (inputId, mapId, options, lang) {
             if (typeof ymaps !== 'undefined') {
-                setTimeout(function () {
-                    runYandexMaps(inputId, mapId, options);
-                }, 1000);
+                runYandexMaps(inputId, mapId, options);
             } else {
                 yandexMapsCallbacks.push({inputId: inputId, mapId: mapId, options: options});
                 if (!yandexMapsApiLoading) {
@@ -170,9 +174,7 @@ alexantr.coordinatesWidget = (function (d) {
         },
         initGoogleMaps: function (inputId, mapId, options, apiKey) {
             if (typeof google === 'object' && typeof google.maps === 'object') {
-                setTimeout(function () {
-                    runGoogleMaps(inputId, mapId, options);
-                }, 1000);
+                runGoogleMaps(inputId, mapId, options);
             } else {
                 googleMapsCallbacks.push({inputId: inputId, mapId: mapId, options: options});
                 if (!googleMapsApiLoading) {
