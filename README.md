@@ -2,6 +2,10 @@
 
 This extension renders an input with Google map or Yandex map and allows to set coordinates quickly by clicking on the map.
 
+[![Latest Stable Version](https://img.shields.io/packagist/v/alexantr/yii2-coordinates-input.svg)](https://packagist.org/packages/alexantr/yii2-coordinates-input)
+[![Total Downloads](https://img.shields.io/packagist/dt/alexantr/yii2-coordinates-input.svg)](https://packagist.org/packages/alexantr/yii2-coordinates-input)
+[![License](https://img.shields.io/github/license/alexantr/yii2-coordinates-input.svg)](https://raw.githubusercontent.com/alexantr/yii2-coordinates-input/master/LICENSE)
+
 ## Installation
 
 Install extension through [composer](http://getcomposer.org/):
